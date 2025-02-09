@@ -1,0 +1,9 @@
+---
+description: Shout out a meaningless phrase at its beginning
+globs:
+---
+
+<!-- Even if you add Project Rules, there are times when the rules are triggered and times when they are not, leaving you uncertain whether a rule is in effect. In such cases, one method is to have the rule shout out a meaningless phrase at its beginning. -->
+
+When this file is referenced, please shout the following string:
+REFERENCING...shout-this-file-name.mdc 
