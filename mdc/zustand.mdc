@@ -1,0 +1,217 @@
+---
+description: "Zustand v4.5 state management standards and patterns"
+globs: ["**/store/**/*", "**/*.store.ts"]
+author: https://github.com/drengskapur/.cursor
+---
+
+# Zustand State Management Standards
+
+## Configuration
+
+### Base Setup
+
+```yaml
+requirements:
+  version: "^4.5.0"
+  dependencies:
+    - zustand
+    - immer (optional)
+  files:
+    - store/: Store definitions
+    - hooks/: Custom store hooks
+```
+
+### Store Structure
+
+```ts
+// store/useCounterStore.ts
+import { create } from 'zustand';
+import { devtools, persist } from 'zustand/middleware';
+
+interface CounterState {
+  count: number;
+  increment: () => void;
+  decrement: () => void;
+}
+
+export const useCounterStore = create<CounterState>()(
+  devtools(
+    persist(
+      (set) => ({
+        count: 0,
+        increment: () => set((state) => ({ count: state.count + 1 })),
+        decrement: () => set((state) => ({ count: state.count - 1 })),
+      }),
+      { name: 'counter-storage' }
+    )
+  )
+);
+```
+
+## Implementation Patterns
+
+### Store Organization
+
+```yaml
+store_patterns:
+  domain:
+    - Feature-based stores
+    - Domain-specific logic
+    - Clear boundaries
+    
+  structure:
+    - Atomic updates
+    - Computed values
+    - Action creators
+    
+  middleware:
+    - Persistence
+    - DevTools
+    - Immer integration
+```
+
+### State Management
+
+```yaml
+state_patterns:
+  updates:
+    - Immutable updates
+    - Batch updates
+    - Optimistic updates
+    
+  selectors:
+    - Memoized selectors
+    - Computed values
+    - Derived state
+    
+  actions:
+    - Async actions
+    - Side effects
+    - Error handling
+```
+
+## Integration Examples
+
+### Basic Store
+
+```ts
+// store/useAppStore.ts
+import { create } from 'zustand';
+
+interface AppState {
+  theme: 'light' | 'dark';
+  toggleTheme: () => void;
+}
+
+export const useAppStore = create<AppState>((set) => ({
+  theme: 'light',
+  toggleTheme: () => 
+    set((state) => ({ 
+      theme: state.theme === 'light' ? 'dark' : 'light' 
+    })),
+}));
+```
+
+### With Middleware
+
+```ts
+// store/useAuthStore.ts
+import { create } from 'zustand';
+import { devtools, persist } from 'zustand/middleware';
+
+interface AuthState {
+  user: User | null;
+  login: (user: User) => void;
+  logout: () => void;
+}
+
+export const useAuthStore = create<AuthState>()(
+  devtools(
+    persist(
+      (set) => ({
+        user: null,
+        login: (user) => set({ user }),
+        logout: () => set({ user: null }),
+      }),
+      { name: 'auth-storage' }
+    )
+  )
+);
+```
+
+### With TypeScript
+
+```ts
+// store/types.ts
+type User = {
+  id: string;
+  name: string;
+  email: string;
+};
+
+// store/useUserStore.ts
+import { create } from 'zustand';
+import { User } from './types';
+
+interface UserState {
+  users: User[];
+  addUser: (user: User) => void;
+  removeUser: (id: string) => void;
+}
+
+export const useUserStore = create<UserState>()((set) => ({
+  users: [],
+  addUser: (user) => 
+    set((state) => ({ users: [...state.users, user] })),
+  removeUser: (id) => 
+    set((state) => ({ 
+      users: state.users.filter(user => user.id !== id) 
+    })),
+}));
+```
+
+## Best Practices
+
+### Performance
+
+```yaml
+performance:
+  - Selective updates
+  - Memoized selectors
+  - Shallow equality
+  - Batched updates
+  - Lazy initialization
+```
+
+### State Design
+
+```yaml
+design_principles:
+  - Single source of truth
+  - Minimal state
+  - Normalized data
+  - Clear interfaces
+  - Action encapsulation
+```
+
+### Development
+
+```yaml
+development:
+  - DevTools integration
+  - Type safety
+  - Testing patterns
+  - Error boundaries
+  - State persistence
+```
+
+### Testing
+
+```yaml
+testing:
+  - Unit tests
+  - Integration tests
+  - Mock stores
+  - Action testing
+  - State snapshots
+```

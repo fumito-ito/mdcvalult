@@ -1,0 +1,406 @@
+---
+description: "Task v3.32 automation standards using Taskfile.yml for development operations"
+globs: ["Taskfile.yml", "taskfile.yml", "Taskfile.yaml", "taskfile.yaml", "Taskfile.dist.yml", "taskfile.dist.yml", "Taskfile.dist.yaml", "taskfile.dist.yaml", "taskfiles/**/*.{yml,yaml}"]
+author: https://github.com/drengskapur/.cursor
+---
+
+# Task Automation Standards
+
+## File Location Behavior
+
+- Task will search for Taskfiles in the current working directory
+- If not found, it will walk up the directory tree until it finds one (similar to git)
+- When running from a subdirectory, Task behaves as if run from the directory containing the Taskfile
+- Use `{{.USER_WORKING_DIR}}` to reference the original working directory
+
+## Global Taskfiles
+
+- Use `--global` or `-g` flag to look in home directory
+- Searches for `$HOME/{T,t}askfile.{yml,yaml}`
+- Global tasks run in `$HOME` by default
+- Use `{{.USER_WORKING_DIR}}` for running in the current directory
+
+## Reading from stdin
+
+- Use `-t -` or `--taskfile -` to read from stdin
+- Useful for dynamically generated Taskfiles
+- Example: `task -t - <(cat ./Taskfile.yml)`
+- Or: `cat ./Taskfile.yml | task -t -`
+
+## Task Execution Order
+
+### Dependencies (Parallel Execution)
+
+- Dependencies listed in `deps` ALWAYS run in parallel for better performance
+- Dependencies should NOT depend on each other as execution order is not guaranteed
+- Use `task:` in `cmds` for sequential execution of tasks
+- Use `--parallel` flag to run CLI tasks in parallel (e.g., `task --parallel test:unit test:e2e`)
+
+### Deferred Execution
+
+- `defer` schedules commands/tasks to run at the end of the current task
+- Deferred commands run even if the task fails (great for cleanup)
+- Multiple defers run in REVERSE order (LIFO - Last In, First Out)
+- Special variable `{{.EXIT_CODE}}` available in deferred commands
+
+## Task Categories
+
+### Development Tasks
+
+```yaml
+development_tasks:
+  default:
+    desc: "Start development server"
+    deps: [install-bun, clean]
+    cmds:
+      - bunx vercel dev
+
+  build:
+    desc: "Build the project"
+    deps: [install-bun, clean]
+    cmds:
+      - bun run build
+    sources:
+      - "app/**/*.{ts,tsx}"
+      - "components/**/*.{ts,tsx}"
+    generates:
+      - ".next/**/*"
+```
+
+### Testing Tasks
+
+```yaml
+test_tasks:
+  test:all:
+    desc: "Run all tests"
+    deps: [test:setup]
+    cmds:
+      - task: test:unit
+      - task: test:integration
+      - task: test:e2e
+
+  test:unit:
+    desc: "Run unit tests"
+    cmds:
+      - bunx vitest run --config ./vitest.unit.config.ts
+
+  test:e2e:
+    desc: "Run end-to-end tests"
+    env:
+      PLAYWRIGHT_TEST_BASE_URL: "http://localhost:3000"
+    cmds:
+      - bunx playwright test
+```
+
+### Database Tasks
+
+```yaml
+database_tasks:
+  migrate:init:
+    cmds:
+      - bun scripts/migrate.ts migrations/001_init.sql
+
+  migrate:all:
+    cmds:
+      - task: migrate:init
+      - task: migrate:questions
+```
+
+### Utility Tasks
+
+```yaml
+utility_tasks:
+  clean:
+    desc: "Clean up artifacts"
+    cmds:
+      - find . -type d -name "debug" -exec rm -rf {} +
+      - find . -type f -name "*.log" -delete
+
+  generate-token:
+    desc: "Generate security token"
+    cmds:
+      - openssl rand -base64 {{default "32" .length}}
+```
+
+## Task Attributes
+
+### Core Task Attributes
+
+```yaml
+task_name:
+  # Core execution
+  cmds: []Command                 # Shell commands to execute
+  deps: []Dependency             # Tasks to run in parallel before this task
+  
+  # Documentation
+  label: string                  # Override task name in output (supports variables)
+  desc: string                   # Short description for task --list
+  summary: string                # Long description for task --summary
+  aliases: []string              # Alternative names for the task
+  
+  # Execution control
+  dir: string                    # Working directory for task
+  prompt: []string               # Confirmation prompts before execution
+  platforms: []string            # OS/arch restrictions (e.g., windows/amd64)
+  internal: bool                 # Hide from CLI and --list
+  interactive: bool              # Mark as interactive command
+  silent: bool                   # Hide task output
+  ignore_error: bool            # Continue on errors
+  
+  # Up-to-date checking
+  sources: []string              # Source files to check
+  generates: []string            # Generated files to check
+  status: []string               # Commands to check if task should run
+  method: string                 # Up-to-date check method (checksum|timestamp|none)
+  
+  # Variables and environment
+  vars: map[string]Variable      # Task-specific variables
+  env: map[string]Variable       # Task-specific environment variables
+  dotenv: []string              # .env files to load
+  requires:                      # Required variables
+    vars: []string
+  
+  # Shell options
+  set: []string                 # Set shell options
+  shopt: []string               # Shell options
+  
+  # Execution behavior
+  run: string                   # Run behavior (always|once|when_changed)
+  prefix: string                # Output prefix for parallel tasks
+```
+
+### Command Attributes
+
+```yaml
+command_entry:
+  # Basic command
+  cmd: string                   # Shell command to execute
+  task: string                  # Task to execute (alternative to cmd)
+  
+  # Looping
+  for:                         # Loop execution
+    var: string                # Variable to loop over
+    split: string              # Split pattern
+    as: string                 # Iterator variable name
+  
+  # Control
+  silent: bool                 # Hide command output
+  ignore_error: bool          # Continue on errors
+  platforms: []string         # OS/arch restrictions
+  
+  # Variables
+  vars: map[string]Variable    # Variables for task execution
+  
+  # Deferred execution
+  defer:                      # Run at task end
+    task: string              # Task to defer
+    vars: map[string]Variable # Variables for deferred task
+    silent: bool              # Hide deferred output
+  
+  # Shell options
+  set: []string               # Set shell options
+  shopt: []string            # Shell options
+```
+
+### Dependency Attributes
+
+```yaml
+dependency_entry:
+  task: string                 # Task to execute
+  vars: map[string]Variable    # Variables to pass
+  silent: bool                # Hide dependency output
+```
+
+### Alternative Syntax Examples
+
+```yaml
+# Simple command
+task_name: echo "command"
+
+# Multiple commands
+task_name:
+  - echo "command1"
+  - echo "command2"
+
+# Single command with attributes
+task_name:
+  cmd: echo "command"
+
+# Precondition shorthand
+task_name:
+  precondition: test -f file.txt
+```
+
+### Up-to-date Methods
+
+- `checksum`: Compare file content checksums (default)
+- `timestamp`: Compare file modification times
+- `none`: Always run task
+
+### Run Behaviors
+
+- `always`: Run every time (default)
+- `once`: Run only once per session
+- `when_changed`: Run when variables change
+
+### Special Variables
+
+- `{{.TASK}}`: Current task name
+- `{{.USER_WORKING_DIR}}`: Original working directory
+- `{{.CHECKSUM}}`: Source files checksum
+- `{{.TIMESTAMP}}`: Source files timestamp
+- `{{.CLI_ARGS}}`: Command line arguments
+
+## Configuration
+
+### Global Settings
+
+```yaml
+version: "3"
+
+output:
+  group:
+    begin: "::group::{{.TASK}}"
+    end: "::endgroup::"
+
+interval: 2s
+set: [pipefail]
+shopt: [globstar]
+
+env:
+  TASK_COLOR_BLUE: "94"
+  TASK_COLOR_GREEN: "92"
+  TASK_COLOR_RED: "91"
+  TASK_COLOR_YELLOW: "93"
+  FORCE_COLOR: "1"
+
+vars:
+  TEST_ARGS: "--reporter=verbose"
+```
+
+## Task Structure
+
+### Task Definition Pattern
+
+```yaml
+task_pattern:
+  name:
+    desc: "Task description"
+    deps: [dependency1, dependency2]
+    vars:
+      VAR1: "value1"
+    env:
+      ENV1: "value1"
+    cmds:
+      - command1
+      - command2
+    sources:
+      - "source/pattern/*"
+    generates:
+      - "output/pattern/*"
+```
+
+### Task Dependencies
+
+```yaml
+dependency_types:
+  - task: Other tasks
+  - file: File existence
+  - env: Environment variables
+  - custom: Custom conditions
+```
+
+## Best Practices
+
+### Task Organization
+
+```yaml
+organization:
+  - Group related tasks
+  - Use clear naming
+  - Document dependencies
+  - Specify descriptions
+  - Include error handling
+```
+
+### Performance
+
+```yaml
+performance:
+  - Cache task results
+  - Use incremental builds
+  - Parallelize when possible
+  - Minimize dependencies
+  - Optimize file watching
+```
+
+### Reliability
+
+```yaml
+reliability:
+  - Handle errors gracefully
+  - Provide cleanup methods
+  - Use status checks
+  - Validate inputs
+  - Log important info
+```
+
+### CI Integration
+
+```yaml
+ci_integration:
+  - Define CI-specific tasks
+  - Set appropriate timeouts
+  - Handle environment differences
+  - Provide proper logging
+  - Cache build artifacts
+```
+
+## Common Patterns
+
+### Installation Tasks
+
+```yaml
+install:
+  install-bun:
+    desc: "Install Bun"
+    status:
+      - command -v bun
+    cmds:
+      - curl -fsSL https://bun.sh/install | bash
+```
+
+### Build Tasks
+
+```yaml
+build:
+  build:prod:
+    desc: "Production build"
+    cmds:
+      - bun run build
+    generates:
+      - .next/**/*
+
+  build:dev:
+    desc: "Development build"
+    cmds:
+      - bun run dev
+```
+
+### Test Tasks
+
+```yaml
+test:
+  test:setup:
+    desc: "Setup test environment"
+    cmds:
+      - task: test:clean
+      - mkdir -p coverage
+      - mkdir -p test-results
+
+  test:clean:
+    desc: "Clean test artifacts"
+    cmds:
+      - rm -rf coverage
+      - rm -rf test-results
+```

@@ -1,0 +1,126 @@
+---
+description: "Storybook v7.6 component development and documentation standards"
+globs: ["**/*.stories.{ts,tsx}", "**/*.mdx", ".storybook/**/*"]
+author: https://github.com/drengskapur/.cursor
+---
+
+# Storybook Standards
+
+## Configuration
+
+### Base Setup
+
+```yaml
+requirements:
+  version: "^7.6.0"
+  dependencies:
+    - "@storybook/react"
+    - "@storybook/addon-essentials"
+    - "@storybook/addon-interactions"
+    - "@storybook/addon-a11y"
+  files:
+    - .storybook/main.ts
+    - .storybook/preview.tsx
+    - .storybook/theme.ts
+```
+
+### Project Configuration
+
+```ts
+// .storybook/main.ts
+import type { StorybookConfig } from '@storybook/nextjs';
+
+const config: StorybookConfig = {
+  stories: ['../**/*.mdx', '../**/*.stories.@(js|jsx|mjs|ts|tsx)'],
+  addons: [
+    '@storybook/addon-links',
+    '@storybook/addon-essentials',
+    '@storybook/addon-interactions',
+    '@storybook/addon-a11y',
+  ],
+  framework: {
+    name: '@storybook/nextjs',
+    options: {},
+  },
+  docs: {
+    autodocs: 'tag',
+  },
+};
+
+export default config;
+```
+
+## Story File Structure
+
+```tsx
+// Component story file structure
+import type { Meta, StoryObj } from '@storybook/react'
+import { ComponentName } from './ComponentName'
+
+const meta = {
+  title: 'Category/ComponentName',
+  component: ComponentName,
+  tags: ['autodocs'],
+  parameters: {
+    layout: 'centered',
+  },
+} satisfies Meta<typeof ComponentName>
+
+export default meta
+type Story = StoryObj<typeof meta>
+
+// Base story with default props
+export const Default: Story = {
+  args: {
+    // Default props
+  },
+}
+
+// Variants with different props
+export const Variant: Story = {
+  args: {
+    // Variant-specific props
+  },
+}
+```
+
+## Story Organization
+
+### Component Categories
+
+```yaml
+categories:
+  atoms:        # Basic building blocks
+    - Button
+    - Input
+    - Icon
+  molecules:    # Combinations of atoms
+    - SearchBar
+    - Card
+  organisms:    # Complex components
+    - Header
+    - Footer
+  templates:    # Page layouts
+    - DashboardLayout
+    - AuthLayout
+  pages:        # Full pages
+    - HomePage
+    - ProfilePage
+```
+
+### Naming Conventions
+
+```yaml
+naming:
+  files: "{ComponentName}.stories.tsx"
+  title: "Category/ComponentName"
+  variants:
+    - Default     # Base component
+    - Primary     # Main variant
+    - Secondary   # Alternative variant
+    - Disabled    # State variant
+    - Loading     # State variant
+    - Error       # State variant
+    - Sizes       # Size variants
+    - Themes      # Theme variants
+```

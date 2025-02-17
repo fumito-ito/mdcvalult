@@ -1,0 +1,219 @@
+---
+description: "Playwright v1.41 E2E testing standards and best practices"
+globs: ["tests/e2e/**/*.spec.ts", "playwright.config.ts"]
+author: https://github.com/drengskapur/.cursor
+---
+
+# Playwright Testing Standards
+
+## Configuration
+
+### Base Setup
+
+```yaml
+requirements:
+  version: "^1.50.1"
+  dependencies:
+    - "@playwright/test"
+  files:
+    - playwright.config.ts: Test configuration
+    - tests/e2e/: Test files
+```
+
+### Project Configuration
+
+```ts
+// playwright.config.ts
+import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './tests/e2e',
+  fullyParallel: false,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+  
+  reporter: [
+    ['html'],
+    ['list'],
+    ['json', { outputFile: 'test-results/test-results.json' }]
+  ],
+  
+  use: {
+    baseURL: 'http://localhost:3000',
+    trace: 'on-first-retry',
+    video: 'on-first-retry',
+    screenshot: 'only-on-failure',
+  },
+  
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+  ],
+  
+  webServer: {
+    command: 'npm run dev',
+    url: 'http://localhost:3000',
+    reuseExistingServer: !process.env.CI,
+  },
+});
+```
+
+## Test Structure
+
+### Test Organization
+
+```yaml
+directory_structure:
+  tests/e2e:
+    - auth/: Authentication tests
+    - pages/: Page tests
+    - api/: API tests
+    - components/: Component tests
+    - utils/: Test utilities
+```
+
+### Test File Pattern
+
+```ts
+// tests/e2e/auth/login.spec.ts
+import { test, expect } from '@playwright/test';
+
+test.describe('Login Flow', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/login');
+  });
+
+  test('successful login', async ({ page }) => {
+    // Test implementation
+  });
+
+  test('invalid credentials', async ({ page }) => {
+    // Test implementation
+  });
+});
+```
+
+## Testing Standards
+
+### Page Object Pattern
+
+```ts
+// tests/e2e/pages/login.page.ts
+export class LoginPage {
+  constructor(private page: Page) {}
+
+  async goto() {
+    await this.page.goto('/login');
+  }
+
+  async login(email: string, password: string) {
+    await this.page.fill('[name=email]', email);
+    await this.page.fill('[name=password]', password);
+    await this.page.click('button[type=submit]');
+  }
+
+  async getErrorMessage() {
+    return this.page.textContent('.error-message');
+  }
+}
+```
+
+### Test Fixtures
+
+```ts
+// tests/e2e/fixtures.ts
+import { test as base } from '@playwright/test';
+import { LoginPage } from './pages/login.page';
+
+type Fixtures = {
+  loginPage: LoginPage;
+};
+
+export const test = base.extend<Fixtures>({
+  loginPage: async ({ page }, use) => {
+    await use(new LoginPage(page));
+  },
+});
+```
+
+## Testing Types
+
+### Visual Testing
+
+```yaml
+screenshot_types:
+  - page: Full page snapshots
+  - element: Component snapshots
+  - viewport: Device-specific views
+  - comparison: Visual regression
+```
+
+### Accessibility Testing
+
+```yaml
+a11y_checks:
+  - ARIA attributes
+  - Color contrast
+  - Keyboard navigation
+  - Screen reader support
+  - Focus management
+```
+
+### Performance Testing
+
+```yaml
+metrics:
+  - Page load time
+  - Time to interactive
+  - First contentful paint
+  - Largest contentful paint
+  - Cumulative layout shift
+```
+
+## Best Practices
+
+### Test Isolation
+
+```yaml
+isolation_practices:
+  - Reset state between tests
+  - Clean up test data
+  - Use unique test users
+  - Avoid test interdependence
+  - Mock external services
+```
+
+### Reliability
+
+```yaml
+reliability_guidelines:
+  - Use stable selectors
+  - Handle async operations
+  - Add retry logic
+  - Set appropriate timeouts
+  - Handle edge cases
+```
+
+### Performance
+
+```yaml
+performance_practices:
+  - Parallelize tests
+  - Reuse authentication state
+  - Minimize page loads
+  - Cache test data
+  - Use test sharding
+```
+
+### CI Integration
+
+```yaml
+ci_setup:
+  - Run in headless mode
+  - Configure retries
+  - Set up reporting
+  - Cache browser binaries
+  - Parallelize execution
+```
