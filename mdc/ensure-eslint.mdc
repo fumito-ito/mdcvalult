@@ -1,0 +1,8 @@
+---
+description: "Ensure that TypeScript files comply with the project's ESLint rules."
+globs: [""**/*.ts"", "**/*.tsx"]
+---
+
+- "When modifying or generating TypeScript files, ensure they conform to ESLint rules."
+- "If an ESLint error occurs, suggest fixes according to the project's `.eslintrc.json`."
+- "Use Prettier for consistent formatting when generating code."

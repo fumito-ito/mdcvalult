@@ -1,0 +1,8 @@
+---
+description: "Prevent manual edits on auto-generated files."
+globs: ["generated/**/*.ts", "src/graphql/**/*.graphql"]
+---
+
+- "Do not manually edit these files. Instead, modify the source definition and regenerate them."
+- "Provide a warning message if a developer attempts to edit these files."
+- "Automatically restore the original content if unintended modifications are detected."

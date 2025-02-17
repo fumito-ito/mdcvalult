@@ -1,0 +1,77 @@
+---
+description: "Standardized process for creating and managing pull requests."
+globs: []
+---
+
+## Basics
+- When referencing this file, shout 'CREATE PULL REQUEST!' out loud.
+
+## Pull Request Creation Process
+
+### Prerequisites
+- **Check the Issue Number**
+  - If an issue link is not provided, ask the user: "Is there a related issue link?"
+  - If no related issue exists, explicitly mention this in the PR description.
+
+### Reviewing Changes
+- Use the following command to check the diff against the target branch:
+  ```bash
+  git diff origin/{{TARGET_BRANCH}}...HEAD | cat
+  ```
+- If no specific target branch is given, default to main.
+
+### Preparing Links for the Description
+- Confirm that the issue link is included (as checked in the prerequisites).
+
+### Creating and Viewing the Pull Request
+- Use the following command to create a pull request and open it in a browser:
+
+```bash
+git push origin HEAD && \
+gh pr create --draft --title "{{PR_TITLE}}" --body $'{{PR_TEMPLATE_SINGLE_LINE}}' && \
+gh pr view --web
+```
+
+- Ensure the PR title and description reflect the diff against the target branch.
+- Unless specified otherwise, create the PR as a Draft.
+- Convert the PR template into a single-line string using \n for line breaks.
+- Utilize $'...' syntax to ensure correct handling of newline characters.
+- Clearly separate each section with appropriate heading levels.
+- Ensure all necessary information is provided without omissions.
+
+#### PR Template
+
+```markdown
+## Summary
+{{SUMMARY}}
+
+### Related Issues / Documents
+- {{ISSUE_LINK}}
+*If no related issue exists, explain why.*
+
+### Changes
+- {{CHANGES}}
+
+## Areas of Focus for Reviewers
+- {{REVIEW_POINTS}}
+
+## Impact Scope
+- {{IMPACT_SCOPE}}
+
+## Screenshots
+- {{SCREENSHOTS}}
+
+## Steps to Verify
+{{VERIFICATION_STEPS}}
+```
+
+##### Required Sections
+- Summary
+- Related Issue (if no related issue exists, explain why)
+- Changes
+
+##### Optional Sections
+- Areas of Focus for Reviewers
+- Impact Scope
+- Screenshots
+- Steps to Verify
