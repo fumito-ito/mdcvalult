@@ -1,7 +1,7 @@
 ---
-description: "Storybook v7.6 component development and documentation standards"
-globs: ["**/*.stories.{ts,tsx}", "**/*.mdx", ".storybook/**/*"]
-author: https://github.com/drengskapur/.cursor
+description: Storybook v7.6 component development and documentation standards
+globs: "**/*.stories.{ts,tsx}, **/*.mdx, .storybook/**/*"
+source: https://github.com/drengskapur/.cursor
 ---
 
 # Storybook Standards

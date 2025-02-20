@@ -1,7 +1,7 @@
 ---
-description: "Zustand v4.5 state management standards and patterns"
-globs: ["**/store/**/*", "**/*.store.ts"]
-author: https://github.com/drengskapur/.cursor
+description: Zustand v4.5 state management standards and patterns
+globs: "**/store/**/*, **/*.store.ts"
+source: https://github.com/drengskapur/.cursor
 ---
 
 # Zustand State Management Standards

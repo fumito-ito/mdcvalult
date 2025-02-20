@@ -1,7 +1,7 @@
 ---
-description: "Next.js 14 application standards and best practices for routing, data fetching, and rendering patterns"
-globs: ["app/**/*", "pages/**/*", "components/**/*"]
-author: https://github.com/drengskapur/.cursor
+description: Next.js 14 application standards and best practices for routing, data fetching, and rendering patterns
+globs: "app/**/*, pages/**/*, components/**/*"
+source: https://github.com/drengskapur/.cursor
 ---
 
 # Next.js 14 Standards

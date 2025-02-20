@@ -1,7 +1,7 @@
 ---
-description: "Task v3.32 automation standards using Taskfile.yml for development operations"
-globs: ["Taskfile.yml", "taskfile.yml", "Taskfile.yaml", "taskfile.yaml", "Taskfile.dist.yml", "taskfile.dist.yml", "Taskfile.dist.yaml", "taskfile.dist.yaml", "taskfiles/**/*.{yml,yaml}"]
-author: https://github.com/drengskapur/.cursor
+description: Task v3.32 automation standards using Taskfile.yml for development operations
+globs: "Taskfile.yml, taskfile.yml, Taskfile.yaml, taskfile.yaml, Taskfile.dist.yml, taskfile.dist.yml, Taskfile.dist.yaml, taskfile.dist.yaml, taskfiles/**/*.{yml,yaml}"
+source: https://github.com/drengskapur/.cursor
 ---
 
 # Task Automation Standards

@@ -1,7 +1,7 @@
 ---
-description: "Playwright v1.41 E2E testing standards and best practices"
-globs: ["tests/e2e/**/*.spec.ts", "playwright.config.ts"]
-author: https://github.com/drengskapur/.cursor
+description: Playwright v1.41 E2E testing standards and best practices
+globs: "tests/e2e/**/*.spec.ts, playwright.config.ts"
+source: https://github.com/drengskapur/.cursor
 ---
 
 # Playwright Testing Standards

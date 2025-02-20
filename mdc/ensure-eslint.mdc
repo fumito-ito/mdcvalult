@@ -1,6 +1,6 @@
 ---
-description: "Ensure that TypeScript files comply with the project's ESLint rules."
-globs: [""**/*.ts"", "**/*.tsx"]
+description: Ensure that TypeScript files comply with the project's ESLint rules.
+globs: "**/*.ts, **/*.tsx"
 ---
 
 - "When modifying or generating TypeScript files, ensure they conform to ESLint rules."

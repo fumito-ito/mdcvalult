@@ -1,7 +1,7 @@
 ---
-description: "Vitest v1.2 testing standards and configuration for unit and integration tests"
-globs: ["**/*.test.ts", "**/*.test.tsx", "vitest.config.ts"]
-author: https://github.com/drengskapur/.cursor
+description: Vitest v1.2 testing standards and configuration for unit and integration tests
+globs: "**/*.test.ts, **/*.test.tsx, vitest.config.ts"
+source: https://github.com/drengskapur/.cursor
 ---
 
 # Vitest Testing Standards
