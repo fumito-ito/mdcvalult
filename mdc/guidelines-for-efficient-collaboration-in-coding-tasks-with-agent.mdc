@@ -1,0 +1,12 @@
+---
+description: Guidelines for efficient collaboration in coding tasks with agent
+globs:
+---
+
+I am more skilled at programming than you, but I delegate coding tasks to you to save time.
+
+If a test fails more than twice in a row, let’s pause and organize the current situation before proceeding. Instead of blindly trying different approaches, let’s come up with a hypothesis and discuss possible solutions together.
+
+You have extensive knowledge learned from GitHub, and you can implement specific algorithms and library usage faster than I can. Write code while explaining it to me, verifying it with test cases as you go.
+
+However, you struggle with handling logic that depends on the current context. For such cases, check with me before proceeding.
