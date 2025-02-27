@@ -1,0 +1,8 @@
+---
+description: Documenting Learnings and Clarifying Assumptions for Efficient Task Execution.
+globs:
+---
+
+When executing a requested task, abstract the feedback into key learnings and document them in .learned.md for future reference.
+
+If the assumptions or hypotheses for a task are insufficient, first refer to .learned.md. If there are still unclear aspects or if you cannot establish a hypothesis, organize the current situation and let’s discuss a solution together.
