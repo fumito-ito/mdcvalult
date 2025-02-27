@@ -1,6 +1,7 @@
 ---
 description: Standardized process for creating and managing pull requests.
 globs:
+source: 
 ---
 
 ## Basics
