@@ -1,0 +1,264 @@
+---
+description: Best practices for writing deno based application with coding agents
+globs: "**/*.ts"
+source: https://github.com/mizchi/deno-ai-bestpractice
+---
+
+# AI Coding with Deno: Best Practices
+
+This document summarizes the best practices for writing code using Deno and AI. It is designed not only for human readers but also as a prompt for coding agents.
+
+This project assumes two modes of operation: Script Mode and Module Mode. The details are explained below.
+
+# Coding Policy
+
+- First, define the types and the interface for the functions that process them.
+- Clearly document the specifications of each file in comments whenever possible.
+- If an implementation does not require maintaining internal state, prefer functions over classes.
+- Use the Adapter Pattern to abstract external dependencies, allowing in-memory adapters to be used in tests.
+
+# Type Definition Guidelines
+
+- Use the most specific types possible and avoid using any.
+- Utilize Utility Types for common type patterns.
+- Use meaningful type aliases to clarify intent.
+
+```ts
+// Good Example
+type UserId = string;
+type UserData = {
+  id: UserId;
+  createdAt: Date;
+};
+
+// Avoid this
+type Data = any;
+```
+
+# Writing Tests
+
+Use `@std/expect` and `@std/testing/bdd`.
+Avoid nested `describe` blocks unless there is a strong reason.
+
+```ts
+import { expect } from "@std/expect";
+import { test } from "@std/testing/bdd";
+
+test("2+3=5", () => {
+  expect(add(2, 3)).toBe(5);
+});
+```
+
+## Implementation Mode: Script Mode
+
+- Minimize external dependencies and keep all logic within a single file.
+- Include test code within the same file.
+- A script is identified if it contains @script in the code or is located under scripts/* or script/*.
+
+Example of Script Mode
+
+```ts
+/* @script */
+/**
+A simple module for addition
+ */
+function add(a: number, b: number): number {
+  return a + b;
+}
+
+// Entry point for execution via `deno run add.ts`
+if (import.meta.main) {
+  console.log(add(1, 2));
+}
+
+/// test
+import { expect } from "@std/expect";
+import { test } from "@std/testing/bdd";
+
+test("add(1, 2) = 3", () => {
+  expect(add(1, 2)).toBe(3);
+});
+```
+
+Coding agents like `CLINE/Roo` should first execute `deno run add.ts`, then expand tests to be runnable with `deno test -A <filename>` as needed.
+
+In Script Mode, loose versioning in imports is allowed.
+
+Import Priority
+
+- Fixed versions of `jsr:`
+- `jsr:` without versions
+- `npm:`
+
+Avoid using `https://deno.land/x/*` unless no alternative is available.
+
+```ts
+// OK
+import $ from "jsr:@david/dax@0.42.0";
+import $ from "jsr:@david/dax";
+import { z } from "npm:zod";
+
+// Not Recommended
+import * as cbor from "https://deno.land/x/cbor";
+```
+
+After verification in Script Mode, migrate to Module Mode.
+
+## Implementation Mode: Module Mode
+
+Module Mode consists of multiple files within a directory.
+
+Example Structure
+
+```
+xxx/
+  mod.ts    - Public API (re-exports only)
+  deps.ts   - Imports dependencies (re-exports for internal use)
+  lib.ts    - Implementation (imports from deps.ts)
+  types.ts  - Type definitions
+  mod.test.ts
+  lib.test.ts
+yyy/
+  mod.ts    - Public API (re-exports only)
+  deps.ts   - Imports dependencies (re-exports for internal use)
+  lib.ts    - Implementation (imports from deps.ts)
+  types.ts  - Type definitions
+  mod.test.ts
+  lib.test.ts
+```
+
+### Roles of Module Files & Context Boundaries
+
+A module’s context is fully defined by `mod.ts` and `deps.ts`:
+
+- mod.ts (Public Interface)
+- Exports the implementation for external use.
+- Other modules must import only from mod.ts.
+- Contains only re-exports, no implementations.
+- Provides an overview of the module’s functionality.
+- deps.ts (Dependencies)
+- Imports other modules’ mod.ts.
+- Re-exports functionalities for internal use.
+- Centralizes external dependencies.
+- Allows quick review of module dependencies.
+
+Other files:
+
+- types.ts - Collects type definitions.
+- lib.ts - Contains the actual implementation.
+- If the codebase is small (<150 lines), keep it in lib.ts.
+- Otherwise, split into multiple files.
+- Always import dependencies from deps.ts.
+- Must not be referenced directly from outside the module.
+- *.test.ts - Test files.
+- Located in the same directory as implementation files.
+- Maintain a 1:1 correspondence between implementation and test files.
+
+Benefits of this structure:
+
+- Dependency transparency
+- Predictable impact of code changes
+- Low module coupling
+- Easy refactoring
+
+Unlike Script Mode, in Module Mode, use `deno add jsr:@david/dax@0.42.0` to manage dependencies instead of `jsr:` or `npm:`.
+
+```ts
+// OK
+import $ from "@david/dax";
+
+// NG
+import $ from "jsr:@david/dax@0.42.0";
+```
+
+## Converting from Script Mode to Module Mode
+
+When refactoring from Script Mode to Module Mode, split into multiple files according to Module Mode specifications.
+
+```ts
+/// lib.ts
+export function add(a: number, b: number): number {
+  return a + b;
+}
+
+/// deps.ts
+export { PI } from "../constants/mod.ts";
+
+/// mod.ts
+/**
+A module for addition
+ */
+export { add } from "./lib.ts";
+
+/// mod.test.ts
+import { expect } from "@std/expect";
+import { test } from "@std/testing/bdd";
+
+test("add(1, 2) = 3", () => {
+  expect(add(1, 2)).toBe(3);
+});
+```
+
+## Managing Module Dependencies
+
+### Import Rules
+
+- Always import other modules via mod.ts.
+- Do not import files from another module directly.
+- Use relative paths for internal module imports.
+- Reference re-exports from deps.ts inside a module.
+
+### Validating Dependencies
+
+1. Command-line validation:
+
+```bash
+deno task check:deps
+```
+
+- Ensures all imports go through mod.ts
+- Checks that no direct file imports occur between modules
+
+1. Linting Plugin Validation:
+
+```bash
+deno lint
+```
+
+The mod-import rule checks:
+
+- Whether imports are properly routed through mod.ts
+- Provides suggestions for fixing violations
+
+IDE integration allows real-time feedback on import violations.
+
+## Code Quality Monitoring
+
+### Coverage
+
+Use `deno task test:cov`, which is an alias for:
+
+```bash
+deno test --coverage=coverage && deno coverage coverage
+```
+
+Coverage targets:
+
+- 80%+ for new implementations
+- 90%+ for critical business logic
+
+Maintain high coverage by separating execution logic and pure functions:
+
+- Implementation (lib.ts): Pure functions with business logic.
+- Exports (mod.ts): Public-facing API.
+- Execution (cli.ts): Entry points & debugging logic.
+
+Dead Code Analysis
+
+- Use TSR (TypeScript Runtime) to detect unused code.
+- Regularly check and remove unused exports and functions.
+
+Specification Extraction via Type Definitions
+
+- Generate documentation automatically from d.ts files.
+- Embed specifications in type signatures and extract them via dts.
