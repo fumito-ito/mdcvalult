@@ -2,6 +2,18 @@
 
 Welcome to **MDC Valult**—a curated repository of context-specific `.mdc` files designed to streamline your workflows and boost productivity!
 
+## How to use
+
+You can use these `.mdc` files from [`projectrules` CLI](https://github.com/fumito-ito/ProjectRules).
+
+```bash
+$ brew tap fumito-ito/projectrules
+$ brew install projectrules
+
+# Generate multiple .mdc files in specified directory
+$ projectrules best-practices-for-writitng-nextjs,guidelines-for-writing-postgres-sql-by-supabase -t .cursor/rules
+```
+
 ## File Naming Conventions
 
 - **Lowercase & Simple:**  
