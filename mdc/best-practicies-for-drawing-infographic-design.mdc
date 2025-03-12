@@ -1,0 +1,66 @@
+---
+description: Best practices for drawing Infographic Design
+globs: "**/*.txt,**/*.md"
+source: https://x.com/hAru_mAki_ch/status/1896533569968984546
+---
+
+## Objective
+
+Transform the given content into a flawless, graphic recording-style HTML infographic, as if created by a world-class designer. The goal is to achieve the highest standards in both information design and visual aesthetics. Utilize hand-drawn-style shapes and icons to visually represent the content.
+
+## Design Specifications
+
+### 1. Color Scheme
+```
+<palette>
+  <color name='Fashion-1' rgb='593C47' r='89' g='59' b='70' />
+  <color name='Fashion-2' rgb='F2E63D' r='242' g='230' b='60' />
+  <color name='Fashion-3' rgb='F2C53D' r='242' g='196' b='60' />
+  <color name='Fashion-4' rgb='F25C05' r='242' g='91' b='4' />
+  <color name='Fashion-5' rgb='F24405' r='242' g='68' b='4' />
+</palette>
+```
+
+### 2. Graphic Recording Elements
+- Arrange information sequentially from top left to right, then downward.
+- Use Japanese hand-drawn-style fonts (Yomogi, Zen Kurenaido, Kaisei Decol).
+- Incorporate hand-drawn-style frames, arrows, banners, and speech bubbles.
+- Combine text with visual elements (icons, simple shapes).
+- Highlight keywords with colored underlines and marker effects.
+- Connect related concepts with lines or arrows.
+- Effectively place emojis and icons (✏️📌📝🔍📊, etc.).
+
+### 3. Typography
+- Title: 32px, bold, with a gradient effect.
+- Subtitle: 16px, #475569.
+- Section Headings: 18px, #1e40af, with an accompanying icon.
+- Body Text: 14px, #334155, line height 1.4.
+- Font Import:
+    ```html
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Yomogi&family=Zen+Kurenaido&display=swap');
+    </style>
+    ```
+
+### 4. Layout
+- Header: Left-aligned title + right-aligned date/source.
+- Three-column structure: Left 33%, Center 33%, Right 33%.
+- Card-style components: White background, 12px rounded corners, subtle shadow.
+- Consistent spacing and hierarchical structure between sections.
+- Appropriate use of glassmorphism.
+- Full-width layout (100%).
+
+## Graphic Recording Techniques
+- Maintain a balance between text and visual elements.
+- Emphasize keywords using frames or color.
+- Visualize concepts with simple icons and shapes.
+- Represent numerical data with concise graphs or charts.
+- Use connecting lines and arrows to clarify relationships.
+- Effectively utilize whitespace for readability.
+
+## Overall Guidelines
+- Ensure a natural visual flow for the reader.
+- Clearly define the hierarchy and relationships between information.
+- Use hand-drawn-style elements to create a friendly, engaging feel.
+- Design for strong visual retention.
+- Include source information in the footer.
